@@ -193,6 +193,18 @@ function App() {
     localStorage.setItem('showFavoritesOnly', 'false');
   };
 
+  // Форматирование числа с пробелами между тысячами
+  const formatNumberInput = (value: string): string => {
+    const num = value.replace(/\s/g, '');
+    if (!num || isNaN(Number(num))) return value;
+    return Number(num).toLocaleString('ru-RU');
+  };
+
+  // Парсинг отформатированного числа
+  const parseNumberInput = (value: string): number => {
+    return parseFloat(value.replace(/\s/g, ''));
+  };
+
   const filteredData = useMemo(() => {
     if (!showFavoritesOnly) return data;
     return data.filter(row => favorites.has(row.binance_symbol));
@@ -515,15 +527,22 @@ function App() {
                   <option value="<=">{'<='}</option>
                 </select>
                 <input
-                  type="number"
-                  placeholder="значение"
+                  type="text"
+                  placeholder="например: 1 000 000"
                   onChange={(e) => {
                     const val = (activeFilterColumn.getFilterValue() as [string, number]) || ['>', 0];
-                    const num = parseFloat(e.target.value);
+                    const num = parseNumberInput(e.target.value);
                     activeFilterColumn.setFilterValue(isNaN(num) ? undefined : [val[0], num]);
                   }}
+                  onBlur={(e) => {
+                    e.target.value = formatNumberInput(e.target.value);
+                  }}
                   className="filter-input"
-                  defaultValue={(activeFilterColumn.getFilterValue() as [string, number])?.[1] ?? ''}
+                  defaultValue={
+                    (activeFilterColumn.getFilterValue() as [string, number])?.[1]
+                      ? formatNumberInput(String((activeFilterColumn.getFilterValue() as [string, number])[1]))
+                      : ''
+                  }
                 />
               </div>
             ) : (

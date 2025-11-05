@@ -139,7 +139,8 @@ th {
   background: var(--bg1);
   color: var(--text);
   font-size: 0.85rem;
-  min-width: 70px;
+  min-width: 120px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 .filter-input::placeholder {
