@@ -1,0 +1,10 @@
+node_modules/
+dist/
+output/*.csv
+output/dist/
+.env
+*.log
+proxy.txt
+config.json
+.DS_Store
+

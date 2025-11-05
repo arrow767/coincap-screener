@@ -1,0 +1,26 @@
+{
+	"concurrency": 4,
+	"priceTolerance": 0.2,
+	"progressIntervalMs": 5000,
+	"chainsPriority": [
+		"ethereum",
+		"binance-smart-chain",
+		"arbitrum-one",
+		"optimistic-ethereum",
+		"solana",
+		"polygon-pos",
+		"base",
+		"avalanche"
+	],
+	"filters": {
+		"minMarketCapUsd": 1000000,
+		"maxMarketCapUsd": null,
+		"minFdvUsd": null,
+		"maxFdvUsd": null,
+		"minOnboardDays": 0,
+		"maxOnboardDays": null
+	},
+	"outputDir": "output"
+}
+
+
