@@ -34,8 +34,14 @@ const booleanFilterFn: FilterFn<any> = (row, columnId, filterValue) => {
 
 function App() {
   const [data, setData] = useState<CoinData[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>(() => {
+    const saved = localStorage.getItem('tableSorting');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(() => {
+    const saved = localStorage.getItem('tableFilters');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [newCoins, setNewCoins] = useState<Set<string>>(new Set());
   // Popover для числовых фильтров
@@ -43,12 +49,30 @@ function App() {
     { columnId: null, x: 0, y: 0 }
   );
   const [activeFilterColumn, setActiveFilterColumn] = useState<any | null>(null);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(() => {
+    const saved = localStorage.getItem('showFavoritesOnly');
+    return saved === 'true';
+  });
   const [priceChanges, setPriceChanges] = useState<Record<string, number>>({});
   const [volumes, setVolumes] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState<string | null>(null);
   const favoritesRef = useRef(favorites);
   useEffect(() => { favoritesRef.current = favorites; }, [favorites]);
+
+  // Сохраняем сортировку в localStorage
+  useEffect(() => {
+    localStorage.setItem('tableSorting', JSON.stringify(sorting));
+  }, [sorting]);
+
+  // Сохраняем фильтры в localStorage
+  useEffect(() => {
+    localStorage.setItem('tableFilters', JSON.stringify(columnFilters));
+  }, [columnFilters]);
+
+  // Сохраняем флаг "только избранное"
+  useEffect(() => {
+    localStorage.setItem('showFavoritesOnly', showFavoritesOnly.toString());
+  }, [showFavoritesOnly]);
 
   useEffect(() => {
     const stored = localStorage.getItem('favorites');
@@ -158,6 +182,15 @@ function App() {
   const closeFilterPopover = () => {
     setFilterPopover({ columnId: null, x: 0, y: 0 });
     setActiveFilterColumn(null);
+  };
+
+  const resetAllFilters = () => {
+    setSorting([]);
+    setColumnFilters([]);
+    setShowFavoritesOnly(false);
+    localStorage.removeItem('tableSorting');
+    localStorage.removeItem('tableFilters');
+    localStorage.setItem('showFavoritesOnly', 'false');
   };
 
   const filteredData = useMemo(() => {
@@ -396,10 +429,15 @@ function App() {
           <span>Favorites: {favorites.size}</span>
           <span>New: {newCoins.size}</span>
         </div>
-        <label className="fav-filter">
-          <input type="checkbox" checked={showFavoritesOnly} onChange={e => setShowFavoritesOnly(e.target.checked)} />
-          Show favorites only
-        </label>
+        <div className="header-controls">
+          <label className="fav-filter">
+            <input type="checkbox" checked={showFavoritesOnly} onChange={e => setShowFavoritesOnly(e.target.checked)} />
+            Show favorites only
+          </label>
+          <button className="reset-filters-btn" onClick={resetAllFilters} title="Сбросить все фильтры и сортировку">
+            🔄 Сбросить фильтры
+          </button>
+        </div>
       </header>
 
       <div className="table-container">

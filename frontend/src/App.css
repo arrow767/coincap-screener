@@ -354,6 +354,12 @@ td {
   50% { box-shadow: 0 4px 16px rgba(238, 90, 111, 0.6); }
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .fav-filter {
   display: flex;
   align-items: center;
@@ -370,6 +376,24 @@ td {
   cursor: pointer;
   width: 18px;
   height: 18px;
+}
+
+.reset-filters-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.reset-filters-btn:hover {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 1200px) {
