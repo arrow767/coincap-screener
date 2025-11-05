@@ -45,6 +45,7 @@ function App() {
   const [activeFilterColumn, setActiveFilterColumn] = useState<any | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [priceChanges, setPriceChanges] = useState<Record<string, number>>({});
+  const [volumes, setVolumes] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState<string | null>(null);
   const favoritesRef = useRef(favorites);
   useEffect(() => { favoritesRef.current = favorites; }, [favorites]);
@@ -92,10 +93,13 @@ function App() {
       const res = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
       const tickers = await res.json();
       const changes: Record<string, number> = {};
+      const volumes: Record<string, number> = {};
       tickers.forEach((t: any) => {
         changes[t.symbol] = parseFloat(t.priceChangePercent);
+        volumes[t.symbol] = parseFloat(t.quoteVolume); // Объём в USDT
       });
       setPriceChanges(changes);
+      setVolumes(volumes);
     } catch (e) {
       console.error('Failed to load 24h changes:', e);
     }
@@ -162,8 +166,18 @@ function App() {
   }, [data, showFavoritesOnly, favorites]);
 
   const tableData = useMemo(() => (
-    filteredData.map(row => ({ ...row, change24h: priceChanges[row.binance_symbol] ?? null }))
-  ), [filteredData, priceChanges]);
+    filteredData.map(row => {
+      const volume24h = volumes[row.binance_symbol] ?? null;
+      const mcap = row.market_cap_usd;
+      const volumeMcapRatio = (volume24h && mcap && mcap > 0) ? (volume24h / mcap) * 100 : null;
+      return {
+        ...row,
+        change24h: priceChanges[row.binance_symbol] ?? null,
+        volume_24h: volume24h,
+        volume_mcap_ratio: volumeMcapRatio
+      };
+    })
+  ), [filteredData, priceChanges, volumes]);
 
   const columns = useMemo<ColumnDef<CoinData>[]>(() => [
     {
@@ -263,6 +277,27 @@ function App() {
       filterFn: numericFilterFn,
     },
     {
+      accessorKey: 'volume_24h',
+      header: 'Volume 24h',
+      cell: ({ getValue }) => {
+        const val = getValue<number>();
+        if (!val) return '—';
+        if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
+        if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
+        return `$${(val / 1e3).toFixed(2)}K`;
+      },
+      filterFn: numericFilterFn,
+    },
+    {
+      accessorKey: 'volume_mcap_ratio',
+      header: 'Vol/MCap %',
+      cell: ({ getValue }) => {
+        const val = getValue<number>();
+        return val != null ? `${val.toFixed(2)}%` : '—';
+      },
+      filterFn: numericFilterFn,
+    },
+    {
       id: 'locked',
       header: 'Locked %',
       cell: ({ row }) => {
@@ -333,7 +368,7 @@ function App() {
         );
       },
     },
-  ], [favorites, newCoins, priceChanges]);
+  ], [favorites, newCoins, priceChanges, volumes]);
 
   const table = useReactTable({
     data: tableData,
