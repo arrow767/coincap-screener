@@ -263,7 +263,10 @@ function App() {
       header: 'Market Cap',
       cell: ({ getValue }) => {
         const val = getValue<number>();
-        return val ? `$${(val / 1e6).toFixed(2)}M` : '—';
+        if (!val) return '—';
+        if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
+        if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
+        return `$${(val / 1e3).toFixed(2)}K`;
       },
       filterFn: numericFilterFn,
     },
@@ -272,7 +275,10 @@ function App() {
       header: 'FDV',
       cell: ({ getValue }) => {
         const val = getValue<number>();
-        return val ? `$${(val / 1e6).toFixed(2)}M` : '—';
+        if (!val) return '—';
+        if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
+        if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
+        return `$${(val / 1e3).toFixed(2)}K`;
       },
       filterFn: numericFilterFn,
     },
