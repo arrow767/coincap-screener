@@ -101,7 +101,8 @@ h1 {
 }
 
 table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   color: var(--text);
 }
@@ -478,6 +479,38 @@ td {
     flex-direction: column;
     gap: 15px;
   }
+
+  .header-middle {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .stats span {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .fav-filter,
+  .reset-filters-btn {
+    width: 100%;
+    justify-content: center;
+  }
   
   table {
     font-size: 0.85rem;
@@ -485,6 +518,7 @@ td {
   
   th, td {
     padding: 10px 8px;
+    white-space: nowrap;
   }
 }
 
