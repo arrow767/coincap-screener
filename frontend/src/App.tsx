@@ -177,7 +177,19 @@ function App() {
 
   const openFilterPopover = (ev: React.MouseEvent<HTMLButtonElement>, column: any) => {
     const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
-    setFilterPopover({ columnId: column.id, x: rect.left, y: rect.bottom + 6 });
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      // На мобилке открываем по центру экрана
+      setFilterPopover({ 
+        columnId: column.id, 
+        x: window.innerWidth / 2, 
+        y: window.innerHeight / 2 
+      });
+    } else {
+      // На десктопе под кнопкой
+      setFilterPopover({ columnId: column.id, x: rect.left, y: rect.bottom + 6 });
+    }
     setActiveFilterColumn(column);
   };
   const closeFilterPopover = () => {

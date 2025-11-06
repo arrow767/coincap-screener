@@ -327,6 +327,12 @@ td {
   background: transparent;
 }
 
+@media (max-width: 768px) {
+  .popover-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
 .filter-popover {
   position: fixed;
   z-index: 50;
@@ -337,6 +343,15 @@ td {
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   padding: 10px;
   min-width: 220px;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 768px) {
+  .filter-popover {
+    transform: translate(-50%, -50%);
+    min-width: 280px;
+    max-width: 90vw;
+  }
 }
 
 .filter-popover-title {
