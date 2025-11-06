@@ -56,6 +56,7 @@ function App() {
   const [priceChanges, setPriceChanges] = useState<Record<string, number>>({});
   const [volumes, setVolumes] = useState<Record<string, number>>({});
   const [copied, setCopied] = useState<string | null>(null);
+  const [searchSymbol, setSearchSymbol] = useState('');
   const favoritesRef = useRef(favorites);
   useEffect(() => { favoritesRef.current = favorites; }, [favorites]);
 
@@ -206,9 +207,21 @@ function App() {
   };
 
   const filteredData = useMemo(() => {
-    if (!showFavoritesOnly) return data;
-    return data.filter(row => favorites.has(row.binance_symbol));
-  }, [data, showFavoritesOnly, favorites]);
+    let result = data;
+    
+    // Фильтр по избранному
+    if (showFavoritesOnly) {
+      result = result.filter(row => favorites.has(row.binance_symbol));
+    }
+    
+    // Фильтр по поиску символа
+    if (searchSymbol.trim()) {
+      const search = searchSymbol.trim().toUpperCase();
+      result = result.filter(row => row.binance_symbol.toUpperCase().includes(search));
+    }
+    
+    return result;
+  }, [data, showFavoritesOnly, favorites, searchSymbol]);
 
   const tableData = useMemo(() => (
     filteredData.map(row => {
@@ -436,10 +449,26 @@ function App() {
     <div className="app">
       <header>
         <h1>🚀 Binance Perpetual Screener</h1>
-        <div className="stats">
-          <span>Total: {filteredData.length}</span>
-          <span>Favorites: {favorites.size}</span>
-          <span>New: {newCoins.size}</span>
+        <div className="header-middle">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="🔍 Поиск по символу (например: BTC, ETH)"
+              value={searchSymbol}
+              onChange={(e) => setSearchSymbol(e.target.value)}
+              className="search-input"
+            />
+            {searchSymbol && (
+              <button className="clear-search" onClick={() => setSearchSymbol('')} title="Очистить">
+                ✕
+              </button>
+            )}
+          </div>
+          <div className="stats">
+            <span>Total: {filteredData.length}</span>
+            <span>Favorites: {favorites.size}</span>
+            <span>New: {newCoins.size}</span>
+          </div>
         </div>
         <div className="header-controls">
           <label className="fav-filter">
@@ -533,8 +562,7 @@ function App() {
                     const val = (activeFilterColumn.getFilterValue() as [string, number]) || ['>', 0];
                     const num = parseNumberInput(e.target.value);
                     activeFilterColumn.setFilterValue(isNaN(num) ? undefined : [val[0], num]);
-                  }}
-                  onBlur={(e) => {
+                    // Форматируем на лету
                     e.target.value = formatNumberInput(e.target.value);
                   }}
                   className="filter-input"
