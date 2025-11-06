@@ -101,10 +101,10 @@ h1 {
 }
 
 table {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
   border-collapse: collapse;
   color: var(--text);
+  table-layout: auto;
 }
 
 thead {
@@ -533,7 +533,18 @@ td {
   
   th, td {
     padding: 10px 8px;
+  }
+  
+  /* На мобилке включаем горизонтальный скролл */
+  table {
+    table-layout: fixed;
+    min-width: 1400px;
+  }
+  
+  th, td {
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
