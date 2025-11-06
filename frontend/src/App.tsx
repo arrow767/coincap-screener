@@ -518,7 +518,7 @@ function App() {
                               aria-label="Фильтр"
                             >
                               {/* иконка-фильтр */}
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 5H21L14 12V19L10 21V12L3 5Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                               </svg>
                             </button>

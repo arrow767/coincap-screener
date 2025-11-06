@@ -82,6 +82,8 @@ h1 {
   border: 1px solid var(--border);
   scrollbar-width: thin;
   scrollbar-color: var(--accent) var(--bg1);
+  max-width: 98vw;
+  width: 100%;
 }
 
 /* Webkit браузеры (Chrome, Edge, Safari) */
@@ -115,7 +117,8 @@ h1 {
 }
 
 table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   color: var(--text);
   table-layout: auto;
@@ -138,6 +141,11 @@ th {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+}
+
+td {
+  padding: 14px 12px;
+  font-size: 0.9rem;
 }
 
 .sortable {
@@ -206,11 +214,6 @@ tbody tr {
 
 tbody tr:hover {
   background: rgba(255, 255, 255, 0.04);
-}
-
-td {
-  padding: 14px 12px;
-  font-size: 0.9rem;
 }
 
 .fav-btn {
@@ -349,13 +352,15 @@ td {
 
 .filter-toggle svg {
   filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.3));
+  width: 16px;
+  height: 16px;
 }
 
 /* Активный фильтр (когда значение установлено) */
 .filter-toggle.active {
   background: var(--accent);
   color: var(--bg1);
-  box-shadow: 0 0 8px rgba(167, 139, 250, 0.6);
+  box-shadow: 0 0 6px rgba(167, 139, 250, 0.6);
   animation: pulse-filter 2s ease-in-out infinite;
 }
 
