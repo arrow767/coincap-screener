@@ -512,9 +512,9 @@ function App() {
                           </div>
                           {(header.column.columnDef.filterFn === numericFilterFn || header.column.columnDef.filterFn === booleanFilterFn) && (
                             <button
-                              className="filter-toggle"
+                              className={`filter-toggle ${header.column.getFilterValue() ? 'active' : ''}`}
                               onClick={(e) => openFilterPopover(e, header.column)}
-                              title="Фильтр"
+                              title={header.column.getFilterValue() ? 'Фильтр активен' : 'Фильтр'}
                               aria-label="Фильтр"
                             >
                               {/* иконка-фильтр */}
