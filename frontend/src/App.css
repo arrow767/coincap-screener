@@ -80,24 +80,38 @@ h1 {
   overflow-y: visible;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   border: 1px solid var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg1);
 }
 
+/* Webkit браузеры (Chrome, Edge, Safari) */
 .table-container::-webkit-scrollbar {
-  height: 10px;
+  height: 12px;
+  background: var(--bg1);
 }
 
 .table-container::-webkit-scrollbar-track {
   background: var(--bg1);
-  border-radius: 10px;
+  border-radius: 0 0 16px 16px;
 }
 
 .table-container::-webkit-scrollbar-thumb {
   background: var(--accent);
-  border-radius: 10px;
+  border-radius: 6px;
+  border: 2px solid var(--bg1);
 }
 
 .table-container::-webkit-scrollbar-thumb:hover {
   background: var(--accent-strong);
+}
+
+/* Скроллбар всегда виден */
+.table-container::-webkit-scrollbar-thumb {
+  visibility: visible;
+}
+
+.table-container::-webkit-scrollbar-corner {
+  background: var(--bg1);
 }
 
 table {
@@ -128,13 +142,16 @@ th {
 .sortable {
   cursor: pointer;
   user-select: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
 .sortable:hover {
-  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .filter-row {
@@ -303,22 +320,35 @@ td {
 .header-cell {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
+  justify-content: flex-start;
 }
 
 .filter-toggle {
-  background: transparent;
+  background: var(--accent-soft);
   border: 1px solid var(--border);
-  color: var(--text);
+  color: var(--accent);
   border-radius: 6px;
-  padding: 4px 6px;
+  padding: 4px 7px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: all 0.2s;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
 }
 
-.filter-toggle:hover { background: var(--accent-soft); }
+.filter-toggle:hover { 
+  background: var(--accent);
+  color: var(--bg1);
+  transform: scale(1.1);
+}
+
+.filter-toggle svg {
+  filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.3));
+}
 
 /* Поповер фильтра */
 .popover-backdrop {
