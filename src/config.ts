@@ -9,6 +9,7 @@ const ConfigSchema = z.object({
 	concurrency: z.number().int().positive().max(32).default(4),
 	priceTolerance: z.number().positive().max(1).default(0.2),
 	progressIntervalMs: z.number().int().positive().max(600000).default(5000),
+	updateIntervalMs: z.number().int().positive().max(3600000).default(300000), // 5 минут по умолчанию
 	chainsPriority: z.array(z.string()).default([
 		'ethereum',
 		'binance-smart-chain',

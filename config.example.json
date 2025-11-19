@@ -2,6 +2,7 @@
 	"concurrency": 4,
 	"priceTolerance": 0.2,
 	"progressIntervalMs": 5000,
+	"updateIntervalMs": 300000,
 	"chainsPriority": [
 		"ethereum",
 		"binance-smart-chain",

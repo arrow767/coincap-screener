@@ -31,7 +31,7 @@ interface OutputRow {
 	filter_reason: string | null;
 }
 
-async function main(): Promise<void> {
+export async function runDataCollection(): Promise<void> {
     const startedAt = Date.now();
     
     loadProxies();
@@ -189,9 +189,11 @@ async function main(): Promise<void> {
 
 	const dateStr = format(new Date(), 'yyyy-MM-dd_HH-mm-ss');
     fs.mkdirSync(config.outputDir, { recursive: true });
-    const path = `${config.outputDir}/perp_screener_${dateStr}.csv`;
+    const timestampedPath = `${config.outputDir}/perp_screener_${dateStr}.csv`;
+    const latestPath = `${config.outputDir}/perp_screener_latest.csv`;
+    
 	const csvWriter = createObjectCsvWriter({
-		path,
+		path: timestampedPath,
 		header: [
 			{ id: 'exchange_symbol', title: 'binance_symbol' },
 			{ id: 'base_asset', title: 'base_asset' },
@@ -217,13 +219,22 @@ async function main(): Promise<void> {
 	});
 
     await csvWriter.writeRecords(rows);
+    
+    // Создаём также файл "latest" для фронтенда
+    fs.copyFileSync(timestampedPath, latestPath);
+    
     clearInterval(progressTimer);
     const ms = Date.now() - startedAt;
-    console.log(`[done] Готово за ${(ms/1000).toFixed(1)}s. Всего строк: ${rows.length} из ${total}. CSV: ${path}`);
+    console.log(`[done] Готово за ${(ms/1000).toFixed(1)}s. Всего строк: ${rows.length} из ${total}.`);
+    console.log(`[done] CSV сохранен: ${timestampedPath}`);
+    console.log(`[done] Latest: ${latestPath}`);
     console.log(`[summary] Флаги: price=${flaggedPrice}, cap=${flaggedCap}, fdv=${flaggedFdv}, days=${flaggedOnboard}, cg=${flaggedNoCg}`);
 }
 
-main().catch((e) => {
-	console.error('[fatal] Ошибка выполнения:', e);
-	process.exit(1);
-});
+// Если запускаем напрямую (не из сервера)
+if (require.main === module) {
+    runDataCollection().catch((e) => {
+        console.error('[fatal] Ошибка выполнения:', e);
+        process.exit(1);
+    });
+}
