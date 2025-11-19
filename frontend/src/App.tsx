@@ -93,8 +93,23 @@ function App() {
 
   const loadData = async () => {
     try {
-      const res = await fetch('/output/perp_screener_latest.csv');
-      const text = await res.text();
+      // Пытаемся загрузить с API (Railway) или локального CSV
+      let text: string;
+      try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+          text = await res.text();
+        } else {
+          // Fallback на локальный CSV
+          const csvRes = await fetch('/output/perp_screener_latest.csv');
+          text = await csvRes.text();
+        }
+      } catch {
+        // Fallback на локальный CSV
+        const res = await fetch('/output/perp_screener_latest.csv');
+        text = await res.text();
+      }
+      
       const parsed = parseCSV(text);
       
       const oldSymbols = new Set(data.map(d => d.binance_symbol));

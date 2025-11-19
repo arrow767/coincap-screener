@@ -31,7 +31,7 @@ interface OutputRow {
 	filter_reason: string | null;
 }
 
-export async function runDataCollection(): Promise<void> {
+export async function runDataCollection(): Promise<OutputRow[]> {
     const startedAt = Date.now();
     
     loadProxies();
@@ -188,47 +188,63 @@ export async function runDataCollection(): Promise<void> {
 	);
 
 	const dateStr = format(new Date(), 'yyyy-MM-dd_HH-mm-ss');
-    fs.mkdirSync(config.outputDir, { recursive: true });
-    const timestampedPath = `${config.outputDir}/perp_screener_${dateStr}.csv`;
-    const latestPath = `${config.outputDir}/perp_screener_latest.csv`;
     
-	const csvWriter = createObjectCsvWriter({
-		path: timestampedPath,
-		header: [
-			{ id: 'exchange_symbol', title: 'binance_symbol' },
-			{ id: 'base_asset', title: 'base_asset' },
-			{ id: 'multiplier', title: 'multiplier' },
-			{ id: 'futures_price_usd', title: 'futures_price_usd' },
-			{ id: 'unit_price_from_futures_usd', title: 'unit_price_from_futures_usd' },
-			{ id: 'onboard_days', title: 'perp_onboard_days' },
-			{ id: 'has_spot', title: 'has_spot_usdt' },
-			{ id: 'spot_symbol', title: 'spot_symbol' },
-			{ id: 'spot_price_usd', title: 'spot_price_usd' },
-			{ id: 'coingecko_id', title: 'coingecko_id' },
-			{ id: 'coingecko_symbol', title: 'coingecko_symbol' },
-			{ id: 'coingecko_name', title: 'coingecko_name' },
-			{ id: 'coingecko_price_usd', title: 'coingecko_price_usd' },
-			{ id: 'price_diff_pct', title: 'price_diff_pct' },
-			{ id: 'market_cap_usd', title: 'market_cap_usd' },
-			{ id: 'fdv_usd', title: 'fdv_usd' },
-			{ id: 'chain', title: 'chain' },
-			{ id: 'contract', title: 'contract' },
-			{ id: 'match_status', title: 'match_status' },
-			{ id: 'filter_reason', title: 'filter_reason' },
-		],
-	});
+    // Проверяем, запущено ли на Railway
+    const isRailway = process.env.RAILWAY_ENVIRONMENT !== undefined;
+    
+    if (!isRailway) {
+        // Локально - сохраняем в файлы
+        try {
+            fs.mkdirSync(config.outputDir, { recursive: true });
+            const timestampedPath = `${config.outputDir}/perp_screener_${dateStr}.csv`;
+            const latestPath = `${config.outputDir}/perp_screener_latest.csv`;
+            
+            const csvWriter = createObjectCsvWriter({
+                path: timestampedPath,
+                header: [
+                    { id: 'exchange_symbol', title: 'binance_symbol' },
+                    { id: 'base_asset', title: 'base_asset' },
+                    { id: 'multiplier', title: 'multiplier' },
+                    { id: 'futures_price_usd', title: 'futures_price_usd' },
+                    { id: 'unit_price_from_futures_usd', title: 'unit_price_from_futures_usd' },
+                    { id: 'onboard_days', title: 'perp_onboard_days' },
+                    { id: 'has_spot', title: 'has_spot_usdt' },
+                    { id: 'spot_symbol', title: 'spot_symbol' },
+                    { id: 'spot_price_usd', title: 'spot_price_usd' },
+                    { id: 'coingecko_id', title: 'coingecko_id' },
+                    { id: 'coingecko_symbol', title: 'coingecko_symbol' },
+                    { id: 'coingecko_name', title: 'coingecko_name' },
+                    { id: 'coingecko_price_usd', title: 'coingecko_price_usd' },
+                    { id: 'price_diff_pct', title: 'price_diff_pct' },
+                    { id: 'market_cap_usd', title: 'market_cap_usd' },
+                    { id: 'fdv_usd', title: 'fdv_usd' },
+                    { id: 'chain', title: 'chain' },
+                    { id: 'contract', title: 'contract' },
+                    { id: 'match_status', title: 'match_status' },
+                    { id: 'filter_reason', title: 'filter_reason' },
+                ],
+            });
 
-    await csvWriter.writeRecords(rows);
-    
-    // Создаём также файл "latest" для фронтенда
-    fs.copyFileSync(timestampedPath, latestPath);
+            await csvWriter.writeRecords(rows);
+            fs.copyFileSync(timestampedPath, latestPath);
+            
+            console.log(`[done] CSV сохранен: ${timestampedPath}`);
+            console.log(`[done] Latest: ${latestPath}`);
+        } catch (err) {
+            console.error('[error] Не удалось сохранить CSV файлы:', err);
+        }
+    } else {
+        // На Railway - сохраняем в памяти через функцию из server.ts
+        console.log('[railway] Файловая система только для чтения, данные сохранены в памяти');
+    }
     
     clearInterval(progressTimer);
     const ms = Date.now() - startedAt;
     console.log(`[done] Готово за ${(ms/1000).toFixed(1)}s. Всего строк: ${rows.length} из ${total}.`);
-    console.log(`[done] CSV сохранен: ${timestampedPath}`);
-    console.log(`[done] Latest: ${latestPath}`);
     console.log(`[summary] Флаги: price=${flaggedPrice}, cap=${flaggedCap}, fdv=${flaggedFdv}, days=${flaggedOnboard}, cg=${flaggedNoCg}`);
+    
+    // Возвращаем данные
+    return rows;
 }
 
 // Если запускаем напрямую (не из сервера)
