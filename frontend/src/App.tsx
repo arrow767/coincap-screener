@@ -445,7 +445,8 @@ function App() {
       cell: ({ row }) => {
         const cgId = row.original.coingecko_id;
         const cgSymbol = row.original.coingecko_symbol;
-        const rawSymbol = row.original.binance_symbol.toLowerCase().replace('usdt', '');
+        const symbol = row.original.binance_symbol;
+        const rawSymbol = symbol ? symbol.toLowerCase().replace('usdt', '') : '';
         
         const crSlug = cgId || cgSymbol || rawSymbol;
         const cmcSlug = cgId || cgSymbol || rawSymbol;
