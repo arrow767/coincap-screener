@@ -26,13 +26,24 @@ if (!isRailway) {
   app.use('/output', express.static(path.join(__dirname, '../output')));
 }
 
+// Health check endpoint
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ 
+    status: 'ok', 
+    dataReady: latestData.length > 0,
+    lastUpdate: lastUpdateTime,
+    itemCount: latestData.length
+  });
+});
+
 // API endpoint для получения данных (для Railway)
 app.get('/api/data', (req: Request, res: Response) => {
   try {
     if (latestData.length === 0) {
       return res.status(503).json({ 
         error: 'Data not ready yet',
-        message: 'Данные еще собираются, попробуйте через минуту'
+        message: 'Данные еще собираются, попробуйте через 1-2 минуты',
+        isUpdating: isUpdating
       });
     }
     
@@ -141,10 +152,7 @@ async function updateDataPeriodically() {
 
 // Запуск сервера с периодическим обновлением
 async function startServer() {
-  // Первоначальное обновление данных при запуске
-  console.log('[server] Первоначальное обновление данных при запуске...');
-  await updateDataPeriodically();
-
+  // Сначала запускаем HTTP сервер
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     
@@ -154,6 +162,12 @@ async function startServer() {
     console.log(`[scheduler] Настроено автообновление каждые ${UPDATE_INTERVAL_MS / 1000} секунд (${(UPDATE_INTERVAL_MS / 60000).toFixed(1)} минут)`);
     
     updateInterval = setInterval(updateDataPeriodically, UPDATE_INTERVAL_MS);
+  });
+  
+  // Первоначальное обновление данных в фоне (не блокирует запуск сервера)
+  console.log('[server] Запускаем первоначальное обновление данных в фоне...');
+  updateDataPeriodically().catch(e => {
+    console.error('[server] Ошибка при первоначальном обновлении:', e);
   });
 }
 
